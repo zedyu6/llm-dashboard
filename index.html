@@ -1144,7 +1144,6 @@ const EMBEDDED_DATA = {
         { "scenario": "引导售卖", "precision": 0, "recall": 0 },
         { "scenario": "宣传类", "precision": 0, "recall": 0 }
       ],
-      "reduceReviewCount": "--",
       "overallPrecision": "--",
       "overallRecall": "--",
       "detailDocUrl": "https://doc.weixin.qq.com/your-eval-report-link-ad"
@@ -1183,7 +1182,7 @@ const EMBEDDED_DATA = {
       "status": "notStarted",
       "progress": 10,
       "documents": [
-        { "title": "Agent能力建设规划", "url": "https://doc.weixin.qq.com/xxx5", "type": "prd", "updateDate": "2026-03-20" }
+        { "title": "看板需求文档", "url": "https://doc.weixin.qq.com/doc/w3_AY8AjAaDANMCNbelvSolETgehuW0G?scode=AJEAIQdfAAobxR5EYoAY8AjAaDANM", "type": "prd", "updateDate": "2026-03-20" }
       ]
     },
     {
@@ -1570,7 +1569,6 @@ function renderEvalScreens() {
       ? f1Scores.filter(d => d.f1 !== null).reduce((a, b) => a.f1 < b.f1 ? a : b)
       : { name: '--', f1: '--' };
 
-    const reduceReview = ev.reduceReviewCount || '--';
     const overallPrecision = ev.overallPrecision || '--';
     const overallRecall = ev.overallRecall || '--';
 
@@ -1611,10 +1609,6 @@ function renderEvalScreens() {
           <div class="metric-label">待提升维度</div>
           <div class="metric-value yellow" style="font-size:1.5rem">${worst.name}</div>
           <div class="metric-change down">${worst.f1}分</div>
-        </div>
-        <div class="metric-card blue">
-          <div class="metric-label">降低进审量</div>
-          <div class="metric-value blue">${reduceReview}</div>
         </div>
         <div class="metric-card cyan">
           <div class="metric-label">准确率</div>
