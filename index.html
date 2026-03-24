@@ -991,14 +991,10 @@ body:hover .controls-hint { opacity: 1; }
 
   <!-- 屏幕1：项目总览 -->
   <div class="screen active" id="screen1">
-    <div class="screen-label">
-      <span>📊 学习进度</span>
-      <div class="line"></div>
-    </div>
     <div id="goalBanner"></div>
     <div class="metric-grid" id="projectMetrics"></div>
     <div class="card" style="margin-bottom: 20px;">
-      <div class="card-title"><span class="icon">🔄</span> 学习进度</div>
+      <div class="card-title"><span class="icon">🔄</span> 学习情况概览</div>
       <div id="pipelineContainer"></div>
     </div>
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
@@ -1477,13 +1473,13 @@ function renderScreen1() {
         arrowClass = 'future';
       }
 
-      // 离线评测节点（步骤索引 3）上方加评测效果悬浮框
+      // 离线评测节点（步骤索引 3）上方加学习效果悬浮框
       let tooltipHtml = '';
       if (stepIdx === 3 && label.evalModel && label.currentStep >= 3) {
         const clickAction = evalScreenIdx >= 0
           ? `onclick="goToScreen(${evalScreenIdx})"` 
           : (label.evalDocUrl ? `onclick="window.open('${label.evalDocUrl}','_blank')"` : '');
-        tooltipHtml = `<div class="eval-tooltip" ${clickAction}>📊 评测效果</div>`;
+        tooltipHtml = `<div class="eval-tooltip" ${clickAction}>📊 学习效果</div>`;
       }
 
       // 达标标记（离线评测后，如果已经到达上线空跑及以后）
