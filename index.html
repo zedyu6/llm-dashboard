@@ -76,7 +76,7 @@ body {
   overflow: hidden;
   width: 100vw;
   height: 100vh;
-  cursor: none;
+  cursor: default;
 }
 
 /* ============================================================
@@ -251,7 +251,7 @@ body {
 /* 指标卡 */
 .metric-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 16px;
   margin-bottom: 24px;
 }
@@ -1001,15 +1001,19 @@ body:hover .controls-hint { opacity: 1; }
       <div class="card-title"><span class="icon">🔄</span> 学习进度</div>
       <div id="pipelineContainer"></div>
     </div>
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
       <div class="card">
-        <div class="card-title"><span class="icon">✨</span> 本周要点</div>
-        <div id="highlightsList"></div>
+        <div class="card-title"><span class="icon">📋</span> 待解决问题</div>
+        <div id="issueOverviewList"></div>
       </div>
       <div class="card">
-        <div class="card-title"><span class="icon">⚠️</span> 风险项</div>
-        <div id="risksList"></div>
+        <div class="card-title"><span class="icon">💡</span> 解决方案</div>
+        <div id="solutionsList"></div>
       </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">⚠️</span> 风险项</div>
+      <div id="risksList"></div>
     </div>
   </div>
 
@@ -1059,10 +1063,11 @@ const EMBEDDED_DATA = {
   },
   "project": {
     "summary": {
-      "totalLabels": 8,
-      "evalCompleted": 2,
+      "totalLabels": 10,
+      "evalCompleted": 1,
+      "evaluating": 1,
       "labeling": 1,
-      "notStarted": 5
+      "notStarted": 7
     },
     "pipeline": [
       "标签及规则定义",
@@ -1081,12 +1086,19 @@ const EMBEDDED_DATA = {
       { "name": "封面问题", "currentStep": -1, "evalModel": null, "evalDocUrl": "", "status": "未开始" },
       { "name": "内文问题", "currentStep": -1, "evalModel": null, "evalDocUrl": "", "status": "未开始" },
       { "name": "调性差", "currentStep": -1, "evalModel": null, "evalDocUrl": "", "status": "未开始" },
-      { "name": "安全问题", "currentStep": -1, "evalModel": null, "evalDocUrl": "", "status": "未开始" }
+      { "name": "安全问题", "currentStep": -1, "evalModel": null, "evalDocUrl": "", "status": "未开始" },
+      { "name": "企业相关", "currentStep": -1, "evalModel": null, "evalDocUrl": "", "status": "未开始" },
+      { "name": "时效问题", "currentStep": -1, "evalModel": null, "evalDocUrl": "", "status": "未开始" }
     ],
-    "weeklyHighlights": [
-      "完成标题问题V1模型评测",
-      "评测广告宣传V1模型",
-      "针对地方新闻、个人倾向性表述等标签提精标需求；补充规则定义"
+    "issueOverview": [
+      "地方新闻类标题漏放严重，主要为未能识别地域信息缺失",
+      "标题问题模型离线评测达标，需要验证线上空跑效果",
+      "规则定义不够清晰，模型理解有偏差"
+    ],
+    "solutions": [
+      "算法在下一次迭代模型时一并读取内容摘要，跟标题结合起来判断 @尹宇阳",
+      "跑出线上一天进审内容的一级标签（只对标题是否有问题做判断）@尹宇阳，3.24需交付结果",
+      "补充\u201cCP名字\u201d标签中对CP的定义，修改影视剧标题的规则 @黄老师，3.26需完成"
     ],
     "risks": [
       { "content": "无", "level": "" }
@@ -1406,6 +1418,7 @@ function renderScreen1() {
 
   // 指标卡
   const s = p.summary;
+  const evaluatingCount = s.evaluating || 0;
   document.getElementById('projectMetrics').innerHTML = `
     <div class="metric-card blue">
       <div class="metric-label">一级标签数</div>
@@ -1414,7 +1427,10 @@ function renderScreen1() {
     <div class="metric-card green">
       <div class="metric-label">完成离线评测</div>
       <div class="metric-value green">${s.evalCompleted}</div>
-      <div class="metric-change up">评测通过率 ${Math.round(s.evalCompleted / s.totalLabels * 100)}%</div>
+    </div>
+    <div class="metric-card cyan">
+      <div class="metric-label">评测中</div>
+      <div class="metric-value cyan">${evaluatingCount}</div>
     </div>
     <div class="metric-card yellow">
       <div class="metric-label">语料标注中</div>
@@ -1500,11 +1516,21 @@ function renderScreen1() {
     `;
   }).join('');
 
-  // 本周要点
-  document.getElementById('highlightsList').innerHTML = p.weeklyHighlights.map(h => `
+  // 问题概览
+  const issueOverview = p.issueOverview || p.weeklyHighlights || [];
+  document.getElementById('issueOverviewList').innerHTML = issueOverview.map(h => `
     <div class="highlight-item">
       <div class="highlight-bullet"></div>
       <div>${h}</div>
+    </div>
+  `).join('');
+
+  // 解决方案
+  const solutions = p.solutions || [];
+  document.getElementById('solutionsList').innerHTML = solutions.map(s => `
+    <div class="highlight-item">
+      <div class="highlight-bullet" style="background: var(--green-400);"></div>
+      <div>${s}</div>
     </div>
   `).join('');
 

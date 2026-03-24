@@ -10,10 +10,11 @@
 
   "project": {
     "summary": {
-      "totalLabels": 8,
-      "evalCompleted": 2,
+      "totalLabels": 10,
+      "evalCompleted": 1,
+      "evaluating": 1,
       "labeling": 1,
-      "notStarted": 5
+      "notStarted": 7
     },
     "pipeline": [
       "标签及规则定义",
@@ -80,12 +81,31 @@
         "evalModel": null,
         "evalDocUrl": "",
         "status": "未开始"
+      },
+      {
+        "name": "企业相关",
+        "currentStep": -1,
+        "evalModel": null,
+        "evalDocUrl": "",
+        "status": "未开始"
+      },
+      {
+        "name": "时效问题",
+        "currentStep": -1,
+        "evalModel": null,
+        "evalDocUrl": "",
+        "status": "未开始"
       }
     ],
-    "weeklyHighlights": [
-      "完成标题问题V1模型评测",
-      "评测广告宣传V1模型",
-      "针对地方新闻、个人倾向性表述等标签提精标需求；补充规则定义"
+    "issueOverview": [
+      "地方新闻类标题漏放严重，主要为未能识别地域信息缺失",
+      "标题问题模型离线评测达标，需要验证线上空跑效果",
+      "规则定义不够清晰，模型理解有偏差"
+    ],
+    "solutions": [
+      "算法在下一次迭代模型时一并读取内容摘要，跟标题结合起来判断 @尹宇阳",
+      "跑出线上一天进审内容的一级标签（只对标题是否有问题做判断）@尹宇阳，3.24需交付结果",
+      "补充\u201cCP名字\u201d标签中对CP的定义，修改影视剧标题的规则 @黄老师，3.26需完成"
     ],
     "risks": [
       { "content": "无", "level": "" }
