@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>玲音大模型能力建设 — 进展大屏</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+/* ============================================================
+   设计令牌 — 深色大屏主题
+   ============================================================ */
+:root {
+  /* 背景层级 */
+  --bg-base: #0b1120;
+  --bg-card: #111827;
+  --bg-card-hover: #1a2332;
+  --bg-elevated: #1e293b;
+  --bg-header: rgba(15, 23, 42, 0.92);
+
+  /* 主色 */
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-900: #1e3a8a;
+
+  /* 语义色 */
+  --green-400: #4ade80;
+  --green-500: #22c55e;
+  --green-bg: rgba(34, 197, 94, 0.12);
+  --yellow-400: #facc15;
+  --yellow-500: #eab308;
+  --yellow-bg: rgba(234, 179, 8, 0.12);
+  --red-400: #f87171;
+  --red-500: #ef4444;
+  --red-bg: rgba(239, 68, 68, 0.12);
+  --purple-400: #c084fc;
+  --purple-500: #a855f7;
+  --cyan-400: #22d3ee;
+  --orange-400: #fb923c;
+
+  /* 文字 */
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-muted: #475569;
+
+  /* 边框 */
+  --border: rgba(148, 163, 184, 0.1);
+  --border-light: rgba(148, 163, 184, 0.06);
+
+  /* 其他 */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* 投屏字号（3米外可读） */
+  --text-hero: 3.5rem;
+  --text-big: 2.25rem;
+  --text-title: 1.35rem;
+  --text-body: 1.05rem;
+  --text-caption: 0.9rem;
+  --text-small: 0.8rem;
+}
+
+/* ============================================================
+   全局重置
+   ============================================================ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Noto Sans SC', 'Helvetica Neue', sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  cursor: none;
+}
+
+/* ============================================================
+   顶部标题栏（固定）
+   ============================================================ */
+.header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 64px;
+  background: var(--bg-header);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  z-index: 100;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-logo {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--blue-500), var(--purple-500));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.header-title {
+  font-size: var(--text-title);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.header-subtitle {
+  font-size: var(--text-caption);
+  color: var(--text-tertiary);
+  margin-left: 4px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.header-time {
+  font-size: var(--text-body);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.header-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.nav-dot.active {
+  background: var(--blue-400);
+  box-shadow: 0 0 8px var(--blue-400);
+  width: 28px;
+  border-radius: 5px;
+}
+
+/* ============================================================
+   屏幕容器
+   ============================================================ */
+.screen-container {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  padding: 28px 36px;
+  opacity: 0;
+  transform: translateX(60px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  pointer-events: none;
+  overflow-y: auto;
+}
+
+.screen.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.screen.exit-left {
+  opacity: 0;
+  transform: translateX(-60px);
+}
+
+/* ============================================================
+   通用组件
+   ============================================================ */
+
+/* 卡片 */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  transition: var(--transition);
+}
+
+.card-title {
+  font-size: var(--text-caption);
+  color: var(--text-tertiary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title .icon {
+  font-size: 1rem;
+}
+
+/* 指标卡 */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.metric-card.blue::before { background: linear-gradient(90deg, var(--blue-500), var(--blue-400)); }
+.metric-card.green::before { background: linear-gradient(90deg, var(--green-500), var(--green-400)); }
+.metric-card.yellow::before { background: linear-gradient(90deg, var(--yellow-500), var(--yellow-400)); }
+.metric-card.red::before { background: linear-gradient(90deg, var(--red-500), var(--red-400)); }
+.metric-card.purple::before { background: linear-gradient(90deg, var(--purple-500), var(--purple-400)); }
+.metric-card.cyan::before { background: linear-gradient(90deg, #06b6d4, var(--cyan-400)); }
+
+.metric-label {
+  font-size: var(--text-caption);
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-size: var(--text-big);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.metric-value.blue { color: var(--blue-400); }
+.metric-value.green { color: var(--green-400); }
+.metric-value.yellow { color: var(--yellow-400); }
+.metric-value.red { color: var(--red-400); }
+.metric-value.purple { color: var(--purple-400); }
+.metric-value.cyan { color: var(--cyan-400); }
+
+.metric-change {
+  font-size: var(--text-small);
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.metric-change.up { color: var(--green-400); }
+.metric-change.down { color: var(--red-400); }
+
+/* 进度条 */
+.progress-bar {
+  height: 8px;
+  background: var(--bg-elevated);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease;
+}
+
+.progress-fill.blue { background: linear-gradient(90deg, var(--blue-600), var(--blue-400)); }
+.progress-fill.green { background: linear-gradient(90deg, var(--green-500), var(--green-400)); }
+.progress-fill.yellow { background: linear-gradient(90deg, var(--yellow-500), var(--yellow-400)); }
+.progress-fill.purple { background: linear-gradient(90deg, var(--purple-500), var(--purple-400)); }
+
+/* 状态标签 */
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: var(--text-small);
+  font-weight: 500;
+}
+
+.status-tag.completed { background: var(--green-bg); color: var(--green-400); }
+.status-tag.inProgress { background: rgba(59, 130, 246, 0.12); color: var(--blue-400); }
+.status-tag.notStarted { background: rgba(100, 116, 139, 0.12); color: var(--text-tertiary); }
+.status-tag.blocked { background: var(--red-bg); color: var(--red-400); }
+.status-tag.high { background: var(--red-bg); color: var(--red-400); }
+.status-tag.medium { background: var(--yellow-bg); color: var(--yellow-400); }
+
+/* ============================================================
+   屏幕1：项目总览
+   ============================================================ */
+.screen1-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 20px;
+}
+
+.milestone-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.milestone-item:last-child { border-bottom: none; }
+
+.milestone-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.milestone-icon.completed { background: var(--green-bg); }
+.milestone-icon.inProgress { background: rgba(59, 130, 246, 0.12); }
+.milestone-icon.notStarted { background: rgba(100, 116, 139, 0.12); }
+
+.milestone-info { flex: 1; }
+
+.milestone-name {
+  font-size: var(--text-body);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.milestone-date {
+  font-size: var(--text-small);
+  color: var(--text-tertiary);
+}
+
+.milestone-progress {
+  width: 100px;
+}
+
+/* 周高亮 */
+.highlight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-light);
+  font-size: var(--text-body);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.highlight-item:last-child { border-bottom: none; }
+
+.highlight-bullet {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--blue-400);
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+
+/* 风险 */
+.risk-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  font-size: var(--text-body);
+  color: var(--text-secondary);
+}
+
+.risk-item:last-child { margin-bottom: 0; }
+
+/* ============================================================
+   屏幕2：评测看板
+   ============================================================ */
+.screen2-top {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.screen2-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.chart-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+}
+
+.chart-box .chart-title {
+  font-size: var(--text-caption);
+  color: var(--text-tertiary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 16px;
+}
+
+.chart-container {
+  width: 100%;
+  height: 260px;
+}
+
+/* 准召表格 */
+.eval-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.eval-table th {
+  text-align: left;
+  font-size: var(--text-small);
+  color: var(--text-tertiary);
+  font-weight: 500;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.eval-table td {
+  padding: 14px 16px;
+  font-size: var(--text-body);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.eval-table tr:last-child td { border-bottom: none; }
+
+.eval-table .scenario { font-weight: 600; color: var(--text-primary); }
+
+.eval-bar {
+  height: 6px;
+  background: var(--bg-elevated);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 120px;
+}
+
+.eval-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.eval-bar-fill.precision { background: linear-gradient(90deg, var(--blue-500), var(--cyan-400)); }
+.eval-bar-fill.recall { background: linear-gradient(90deg, var(--purple-500), var(--purple-400)); }
+
+.eval-score {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: var(--text-body);
+}
+
+/* ============================================================
+   屏幕3：文档门户
+   ============================================================ */
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.member-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  transition: var(--transition);
+}
+
+.member-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.member-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.member-avatar.c0 { background: linear-gradient(135deg, var(--blue-600), var(--blue-400)); }
+.member-avatar.c1 { background: linear-gradient(135deg, var(--purple-500), var(--purple-400)); }
+.member-avatar.c2 { background: linear-gradient(135deg, #059669, var(--green-400)); }
+.member-avatar.c3 { background: linear-gradient(135deg, var(--orange-400), var(--yellow-400)); }
+
+.member-name {
+  font-size: var(--text-title);
+  font-weight: 700;
+}
+
+.member-role {
+  font-size: var(--text-small);
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.member-task {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.member-task-label {
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+.member-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.member-progress-row .progress-bar { flex: 1; }
+
+.member-progress-pct {
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 40px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.member-docs { margin-top: 0; }
+
+.doc-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  transition: var(--transition);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.doc-item:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--blue-500);
+}
+
+.doc-item:last-child { margin-bottom: 0; }
+
+.doc-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.doc-info { flex: 1; }
+
+.doc-title {
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.doc-meta {
+  font-size: var(--text-small);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.doc-arrow {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+
+.doc-item:hover .doc-arrow { color: var(--blue-400); transform: translateX(3px); }
+
+/* ============================================================
+   底部状态栏
+   ============================================================ */
+.footer-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: var(--bg-header);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  z-index: 100;
+  font-size: var(--text-small);
+  color: var(--text-muted);
+}
+
+.footer-bar .status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green-400);
+  display: inline-block;
+  margin-right: 6px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.footer-pages {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-page-name {
+  color: var(--text-tertiary);
+}
+
+.footer-page-name.active {
+  color: var(--blue-400);
+  font-weight: 600;
+}
+
+/* ============================================================
+   动画
+   ============================================================ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.screen.active .metric-card,
+.screen.active .card,
+.screen.active .chart-box,
+.screen.active .member-card {
+  animation: fadeInUp 0.5s ease backwards;
+}
+
+.screen.active .metric-card:nth-child(1),
+.screen.active .card:nth-child(1),
+.screen.active .chart-box:nth-child(1),
+.screen.active .member-card:nth-child(1) { animation-delay: 0.05s; }
+
+.screen.active .metric-card:nth-child(2),
+.screen.active .card:nth-child(2),
+.screen.active .chart-box:nth-child(2),
+.screen.active .member-card:nth-child(2) { animation-delay: 0.1s; }
+
+.screen.active .metric-card:nth-child(3),
+.screen.active .card:nth-child(3),
+.screen.active .member-card:nth-child(3) { animation-delay: 0.15s; }
+
+.screen.active .metric-card:nth-child(4),
+.screen.active .card:nth-child(4),
+.screen.active .member-card:nth-child(4) { animation-delay: 0.2s; }
+
+.screen.active .metric-card:nth-child(5) { animation-delay: 0.25s; }
+.screen.active .metric-card:nth-child(6) { animation-delay: 0.3s; }
+.screen.active .metric-card:nth-child(7) { animation-delay: 0.35s; }
+
+/* ============================================================
+   操控提示
+   ============================================================ */
+.controls-hint {
+  position: fixed;
+  bottom: 52px;
+  right: 40px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-size: var(--text-small);
+  color: var(--text-muted);
+  z-index: 101;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+body:hover .controls-hint { opacity: 1; }
+
+.kbd {
+  display: inline-block;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  margin: 0 2px;
+}
+
+/* 屏幕label */
+.screen-label {
+  font-size: var(--text-small);
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.screen-label .line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     顶部标题栏
+     ============================================================ -->
+<header class="header">
+  <div class="header-left">
+    <div class="header-logo">🤖</div>
+    <div>
+      <span class="header-title" id="headerTitle">大模型能力建设项目</span>
+      <span class="header-subtitle" id="headerSubtitle">· 进展大屏</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="header-nav" id="navDots"></div>
+    <div class="header-time" id="headerTime"></div>
+  </div>
+</header>
+
+<!-- ============================================================
+     屏幕容器
+     ============================================================ -->
+<div class="screen-container">
+
+  <!-- 屏幕1：项目总览 -->
+  <div class="screen active" id="screen1">
+    <div class="screen-label">
+      <span>📊 项目总览</span>
+      <div class="line"></div>
+    </div>
+    <div class="metric-grid" id="projectMetrics"></div>
+    <div class="screen1-grid">
+      <div class="card">
+        <div class="card-title"><span class="icon">🎯</span> 任务进展</div>
+        <div id="milestoneList"></div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="card-title"><span class="icon">✨</span> 本周要点</div>
+          <div id="highlightsList"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="icon">⚠️</span> 风险项</div>
+          <div id="risksList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 评测看板（由JS根据evaluations数组动态生成） -->
+  <div id="evalScreensContainer"></div>
+
+  <!-- 屏幕3：文档门户 -->
+  <div class="screen" id="screen3">
+    <div class="screen-label">
+      <span>📄 团队文档 & 需求</span>
+      <div class="line"></div>
+    </div>
+    <div class="members-grid" id="membersGrid"></div>
+  </div>
+
+</div>
+
+<!-- 底部状态栏 -->
+<footer class="footer-bar">
+  <div>
+    <span class="status-dot"></span>
+    数据已加载 · 上次更新 <span id="lastUpdate">--</span>
+  </div>
+  <div class="footer-pages" id="footerPages"></div>
+</footer>
+
+<!-- 操控提示 -->
+<div class="controls-hint">
+  <span class="kbd">←</span> <span class="kbd">→</span> 切换页面 &nbsp;
+  <span class="kbd">F</span> 全屏
+</div>
+
+<script>
+// ============================================================
+// 内嵌数据（兜底）— 双击打开HTML时fetch会失败，自动使用此数据
+// 如需更新数据：优先修改 data/dashboard.json（通过HTTP服务访问时生效）
+// 或直接修改下方 EMBEDDED_DATA 的内容
+// ============================================================
+const EMBEDDED_DATA = {
+  "config": {
+    "title": "玲音大模型能力建设",
+    "subtitle": "进展大屏",
+    "autoPlay": false,
+    "autoPlayInterval": 30,
+    "theme": "dark"
+  },
+  "project": {
+    "summary": {
+      "totalTasks": 10,
+      "completed": 2,
+      "inProgress": 1,
+      "blocked": 0,
+      "notStarted": 7
+    },
+    "milestones": [
+      { "name": "标题问题V1模型", "status": "completed", "date": "2026-03-13" },
+      { "name": "广告&宣传V1模型", "status": "completed", "date": "2026-03-20" },
+      { "name": "非正规来源第一批语料粗标", "status": "inProgress", "date": "2026-03-30", "progress": 18 },
+      { "name": "标题党", "status": "notStarted", "date": "", "progress": 0 },
+      { "name": "封面问题", "status": "notStarted", "date": "", "progress": 0 },
+      { "name": "内文问题", "status": "notStarted", "date": "", "progress": 0 },
+      { "name": "调性差", "status": "notStarted", "date": "", "progress": 0 },
+      { "name": "安全问题", "status": "notStarted", "date": "", "progress": 0 }
+    ],
+    "weeklyHighlights": [
+      "完成标题问题V1模型评测",
+      "评测广告宣传V1模型",
+      "针对地方新闻、个人倾向性表述等标签提精标需求；补充规则定义"
+    ],
+    "risks": [
+      { "content": "无", "level": "" }
+    ]
+  },
+  "evaluations": [
+    {
+      "currentModel": "标题问题V1",
+      "lastEvalDate": "2026-03-13",
+      "precisionRecall": [
+        { "scenario": "非资讯标题", "precision": 84.11, "recall": 42.45 },
+        { "scenario": "地方新闻类", "precision": 100.00, "recall": 5.79 },
+        { "scenario": "个人倾向性表述", "precision": 33.33, "recall": 36.84 },
+        { "scenario": "标题序号", "precision": 100.00, "recall": 50.00 },
+        { "scenario": "观点不明", "precision": 34.78, "recall": 44.44 },
+        { "scenario": "错别字、病句", "precision": 66.67, "recall": 11.76 },
+        { "scenario": "影视剧标题", "precision": 0, "recall": 0 },
+        { "scenario": "标题破碎", "precision": 25.00, "recall": 18.18 }
+      ],
+      "previousPrecisionRecall": [
+        { "scenario": "非资讯标题", "precision": 0, "recall": 0 },
+        { "scenario": "地方新闻类", "precision": 0, "recall": 0 },
+        { "scenario": "个人倾向性表述", "precision": 0, "recall": 0 },
+        { "scenario": "标题序号", "precision": 0, "recall": 0 },
+        { "scenario": "观点不明", "precision": 0, "recall": 0 },
+        { "scenario": "错别字、病句", "precision": 0, "recall": 0 },
+        { "scenario": "影视剧标题", "precision": 0, "recall": 0 },
+        { "scenario": "标题破碎", "precision": 0, "recall": 0 }
+      ],
+      "reduceReviewCount": "1200",
+      "overallPrecision": "95%",
+      "overallRecall": "46%",
+      "detailDocUrl": "https://doc.weixin.qq.com/your-eval-report-link"
+    },
+    {
+      "currentModel": "广告宣传V1",
+      "lastEvalDate": "待评测",
+      "precisionRecall": [
+        { "scenario": "平台导流", "precision": "--", "recall": "--" },
+        { "scenario": "引导售卖", "precision": "--", "recall": "--" },
+        { "scenario": "宣传类", "precision": "--", "recall": "--" }
+      ],
+      "previousPrecisionRecall": [
+        { "scenario": "平台导流", "precision": 0, "recall": 0 },
+        { "scenario": "引导售卖", "precision": 0, "recall": 0 },
+        { "scenario": "宣传类", "precision": 0, "recall": 0 }
+      ],
+      "reduceReviewCount": "--",
+      "overallPrecision": "--",
+      "overallRecall": "--",
+      "detailDocUrl": "https://doc.weixin.qq.com/your-eval-report-link-ad"
+    }
+  ],
+  "members": [
+    {
+      "name": "张三",
+      "avatar": "",
+      "role": "产品负责人",
+      "currentTask": "多轮对话能力PRD",
+      "status": "inProgress",
+      "progress": 80,
+      "documents": [
+        { "title": "多轮对话能力需求PRD", "url": "https://doc.weixin.qq.com/xxx1", "type": "prd", "updateDate": "2026-03-22" },
+        { "title": "对话体验评估标准", "url": "https://doc.weixin.qq.com/xxx2", "type": "report", "updateDate": "2026-03-18" }
+      ]
+    },
+    {
+      "name": "李四",
+      "avatar": "",
+      "role": "产品经理",
+      "currentTask": "RAG知识库优化方案",
+      "status": "inProgress",
+      "progress": 55,
+      "documents": [
+        { "title": "RAG知识库产品方案", "url": "https://doc.weixin.qq.com/xxx3", "type": "prd", "updateDate": "2026-03-21" },
+        { "title": "检索效果分析报告", "url": "https://doc.weixin.qq.com/xxx4", "type": "report", "updateDate": "2026-03-19" }
+      ]
+    },
+    {
+      "name": "王五",
+      "avatar": "",
+      "role": "产品经理",
+      "currentTask": "Agent框架能力规划",
+      "status": "notStarted",
+      "progress": 10,
+      "documents": [
+        { "title": "Agent能力建设规划", "url": "https://doc.weixin.qq.com/xxx5", "type": "prd", "updateDate": "2026-03-20" }
+      ]
+    },
+    {
+      "name": "赵六",
+      "avatar": "",
+      "role": "产品经理",
+      "currentTask": "评测体系迭代优化",
+      "status": "completed",
+      "progress": 100,
+      "documents": [
+        { "title": "评测体系2.0方案", "url": "https://doc.weixin.qq.com/xxx6", "type": "prd", "updateDate": "2026-03-17" },
+        { "title": "3月评测报告", "url": "https://doc.weixin.qq.com/xxx7", "type": "report", "updateDate": "2026-03-20" },
+        { "title": "竞品模型对比分析", "url": "https://doc.weixin.qq.com/xxx8", "type": "report", "updateDate": "2026-03-15" }
+      ]
+    }
+  ]
+};
+
+// ============================================================
+// 全局状态 — 屏幕数和名称由数据动态计算
+// ============================================================
+let DATA = null;
+let currentScreen = 0;
+let totalScreens = 3;           // 将在 renderAll 中动态更新
+let screenNames = ['项目总览']; // 将在 renderAll 中动态更新
+let autoPlayTimer = null;
+let isPlaying = true;
+
+// 存储每个评测屏幕的图表实例（支持多个）
+let evalChartInstances = [];
+// 记录哪些评测屏幕的图表已初始化
+let evalChartsInitialized = [];
+
+// ============================================================
+// 数据加载 — 优先fetch外部JSON，失败则用内嵌数据
+// ============================================================
+async function loadData() {
+  try {
+    const resp = await fetch('./data/dashboard.json?t=' + Date.now());
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    DATA = await resp.json();
+    console.log('✅ 已从 data/dashboard.json 加载数据');
+  } catch (e) {
+    console.log('ℹ️ 外部JSON加载失败，使用内嵌数据:', e.message);
+    DATA = EMBEDDED_DATA;
+  }
+  // 兼容旧数据：如果只有 evaluation 没有 evaluations，包一层数组
+  if (!DATA.evaluations && DATA.evaluation) {
+    DATA.evaluations = [DATA.evaluation];
+  }
+  renderAll();
+}
+
+// ============================================================
+// 时钟
+// ============================================================
+function updateClock() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+  const str = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} 周${weekdays[now.getDay()]} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  document.getElementById('headerTime').textContent = str;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ============================================================
+// 导航 — 动态支持任意数量的屏幕
+// ============================================================
+function renderNav() {
+  const nav = document.getElementById('navDots');
+  const footer = document.getElementById('footerPages');
+  nav.innerHTML = '';
+  footer.innerHTML = '';
+  for (let i = 0; i < totalScreens; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot' + (i === currentScreen ? ' active' : '');
+    dot.onclick = () => goToScreen(i);
+    nav.appendChild(dot);
+
+    const name = document.createElement('span');
+    name.className = 'footer-page-name' + (i === currentScreen ? ' active' : '');
+    name.textContent = screenNames[i];
+    name.onclick = () => goToScreen(i);
+    name.style.cursor = 'pointer';
+    footer.appendChild(name);
+
+    if (i < totalScreens - 1) {
+      const sep = document.createElement('span');
+      sep.textContent = '·';
+      sep.style.color = 'var(--text-muted)';
+      footer.appendChild(sep);
+    }
+  }
+}
+
+function goToScreen(idx) {
+  if (idx === currentScreen) return;
+  const screens = document.querySelectorAll('.screen');
+  const prevIdx = currentScreen;
+  screens[prevIdx].classList.remove('active');
+  screens[prevIdx].classList.add('exit-left');
+  setTimeout(() => screens[prevIdx].classList.remove('exit-left'), 600);
+
+  currentScreen = idx;
+  screens[currentScreen].classList.add('active');
+  renderNav();
+
+  // 检查是否进入某个评测屏幕（屏幕索引 1 ~ evalCount）
+  const evalCount = DATA.evaluations ? DATA.evaluations.length : 0;
+  const evalIdx = currentScreen - 1; // 评测在数组中的索引
+  if (evalIdx >= 0 && evalIdx < evalCount) {
+    if (!evalChartsInitialized[evalIdx]) {
+      setTimeout(() => renderEvalChart(evalIdx), 100);
+      evalChartsInitialized[evalIdx] = true;
+    } else if (evalChartInstances[evalIdx]) {
+      setTimeout(() => evalChartInstances[evalIdx].resize(), 100);
+    }
+  }
+
+  resetAutoPlay();
+}
+
+function nextScreen() {
+  goToScreen((currentScreen + 1) % totalScreens);
+}
+
+function prevScreen() {
+  goToScreen((currentScreen - 1 + totalScreens) % totalScreens);
+}
+
+// ============================================================
+// 自动轮播
+// ============================================================
+function startAutoPlay() {
+  const interval = (DATA && DATA.config && DATA.config.autoPlayInterval || 30) * 1000;
+  autoPlayTimer = setInterval(nextScreen, interval);
+  isPlaying = true;
+}
+
+function stopAutoPlay() {
+  clearInterval(autoPlayTimer);
+  isPlaying = false;
+}
+
+function resetAutoPlay() {
+  if (isPlaying) {
+    stopAutoPlay();
+    startAutoPlay();
+  }
+}
+
+function toggleAutoPlay() {
+  if (isPlaying) {
+    stopAutoPlay();
+  } else {
+    startAutoPlay();
+  }
+}
+
+// ============================================================
+// 键盘控制
+// ============================================================
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { nextScreen(); }
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { prevScreen(); }
+  else if (e.key === ' ') { e.preventDefault(); toggleAutoPlay(); }
+  else if (e.key === 'f' || e.key === 'F') {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }
+});
+
+// ============================================================
+// 渲染全部 — 动态计算屏幕数
+// ============================================================
+function renderAll() {
+  if (!DATA) return;
+
+  const evalCount = DATA.evaluations ? DATA.evaluations.length : 0;
+
+  // 动态计算总屏幕数：1（项目总览）+ N（评测）+ 1（文档门户）
+  totalScreens = 1 + evalCount + 1;
+
+  // 动态生成屏幕名称
+  screenNames = ['项目总览'];
+  DATA.evaluations.forEach(ev => {
+    screenNames.push('评测 · ' + ev.currentModel);
+  });
+  screenNames.push('文档门户');
+
+  // 重置图表状态
+  evalChartInstances = new Array(evalCount).fill(null);
+  evalChartsInitialized = new Array(evalCount).fill(false);
+
+  // 配置
+  document.getElementById('headerTitle').textContent = DATA.config.title;
+  document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+
+  // 渲染各屏幕
+  renderScreen1();
+  renderEvalScreens();
+  renderMembersScreen();
+  renderNav();
+
+  if (DATA.config.autoPlay) {
+    startAutoPlay();
+  }
+}
+
+// ============================================================
+// 屏幕1：项目总览
+// ============================================================
+function renderScreen1() {
+  const p = DATA.project;
+
+  // 指标卡
+  const total = p.summary.totalTasks;
+  const completionRate = Math.round(p.summary.completed / total * 100);
+  document.getElementById('projectMetrics').innerHTML = `
+    <div class="metric-card blue">
+      <div class="metric-label">总任务数</div>
+      <div class="metric-value blue">${total}</div>
+    </div>
+    <div class="metric-card green">
+      <div class="metric-label">已完成</div>
+      <div class="metric-value green">${p.summary.completed}</div>
+      <div class="metric-change up">完成率 ${completionRate}%</div>
+    </div>
+    <div class="metric-card yellow">
+      <div class="metric-label">进行中</div>
+      <div class="metric-value yellow">${p.summary.inProgress}</div>
+    </div>
+    <div class="metric-card red">
+      <div class="metric-label">阻塞 / 未开始</div>
+      <div class="metric-value red">${p.summary.blocked}<span style="font-size:1.2rem;color:var(--text-muted);"> / </span><span style="font-size:1.5rem;color:var(--text-tertiary)">${p.summary.notStarted}</span></div>
+    </div>
+  `;
+
+  // 里程碑
+  const statusIcons = {
+    completed: '✅',
+    inProgress: '🔵',
+    notStarted: '⚪'
+  };
+  const progressColors = {
+    completed: 'green',
+    inProgress: 'blue',
+    notStarted: 'blue'
+  };
+  document.getElementById('milestoneList').innerHTML = p.milestones.map(m => `
+    <div class="milestone-item">
+      <div class="milestone-icon ${m.status}">${statusIcons[m.status]}</div>
+      <div class="milestone-info">
+        <div class="milestone-name">${m.name}</div>
+        <div class="milestone-date">${m.date}</div>
+      </div>
+      ${m.status !== 'completed' ? `
+        <div class="milestone-progress">
+          <div style="font-size:var(--text-small);color:var(--text-tertiary);text-align:right;margin-bottom:4px">${m.progress || 0}%</div>
+          <div class="progress-bar">
+            <div class="progress-fill ${progressColors[m.status]}" style="width:${m.progress || 0}%"></div>
+          </div>
+        </div>
+      ` : '<span class="status-tag completed">已完成</span>'}
+    </div>
+  `).join('');
+
+  // 本周要点
+  document.getElementById('highlightsList').innerHTML = p.weeklyHighlights.map(h => `
+    <div class="highlight-item">
+      <div class="highlight-bullet"></div>
+      <div>${h}</div>
+    </div>
+  `).join('');
+
+  // 风险
+  document.getElementById('risksList').innerHTML = p.risks.map(r => `
+    <div class="risk-item">
+      ${r.level ? `<span class="status-tag ${r.level}">${r.level === 'high' ? '🔴 高' : '🟡 中'}</span>` : ''}
+      <span>${r.content}</span>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// 动态生成所有评测屏幕 — 一套模板渲染多个模型
+// ============================================================
+function renderEvalScreens() {
+  const container = document.getElementById('evalScreensContainer');
+  container.innerHTML = '';
+
+  DATA.evaluations.forEach((ev, idx) => {
+    // 辅助：判断数值是否有效（非 "--" 且为有限数字）
+    const isNum = v => typeof v === 'number' && isFinite(v);
+    const calcF1 = (p, r) => isNum(p) && isNum(r) && (p + r) > 0
+      ? parseFloat((2 * p * r / (p + r)).toFixed(1))
+      : null;
+
+    // 计算 F1 分数
+    const f1Scores = ev.precisionRecall.map(pr => ({
+      name: pr.scenario,
+      f1: calcF1(pr.precision, pr.recall)
+    }));
+
+    // 是否所有维度都没有数据
+    const hasAnyData = f1Scores.some(d => d.f1 !== null);
+    const best = hasAnyData
+      ? f1Scores.filter(d => d.f1 !== null).reduce((a, b) => a.f1 > b.f1 ? a : b)
+      : { name: '--', f1: '--' };
+    const worst = hasAnyData
+      ? f1Scores.filter(d => d.f1 !== null).reduce((a, b) => a.f1 < b.f1 ? a : b)
+      : { name: '--', f1: '--' };
+
+    const reduceReview = ev.reduceReviewCount || '--';
+    const overallPrecision = ev.overallPrecision || '--';
+    const overallRecall = ev.overallRecall || '--';
+
+    // 准召表格行
+    const tableRows = ev.precisionRecall.map(pr => {
+      const pDisp = isNum(pr.precision) ? pr.precision + '%' : '--';
+      const rDisp = isNum(pr.recall) ? pr.recall + '%' : '--';
+      const f1 = calcF1(pr.precision, pr.recall);
+      const f1Disp = f1 !== null ? f1 + '分' : '--';
+      return `
+        <tr>
+          <td class="scenario">${pr.scenario}</td>
+          <td class="eval-score" style="color:var(--cyan-400)">${pDisp}</td>
+          <td class="eval-score" style="color:var(--purple-400)">${rDisp}</td>
+          <td class="eval-score" style="color:var(--green-400)">${f1Disp}</td>
+        </tr>`;
+    }).join('');
+
+    const screenDiv = document.createElement('div');
+    screenDiv.className = 'screen';
+    screenDiv.id = `evalScreen_${idx}`;
+    screenDiv.innerHTML = `
+      <div class="screen-label">
+        <span>🧪 评测看板 · ${ev.currentModel}</span>
+        <div class="line"></div>
+      </div>
+      <div class="screen2-top">
+        <div class="metric-card cyan">
+          <div class="metric-label">当前模型</div>
+          <div class="metric-value cyan" style="font-size:1.5rem">${ev.currentModel}</div>
+        </div>
+        <div class="metric-card green">
+          <div class="metric-label">最高维度</div>
+          <div class="metric-value green" style="font-size:1.5rem">${best.name}</div>
+          <div class="metric-change up">${best.f1}分</div>
+        </div>
+        <div class="metric-card yellow">
+          <div class="metric-label">待提升维度</div>
+          <div class="metric-value yellow" style="font-size:1.5rem">${worst.name}</div>
+          <div class="metric-change down">${worst.f1}分</div>
+        </div>
+        <div class="metric-card blue">
+          <div class="metric-label">降低进审量</div>
+          <div class="metric-value blue">${reduceReview}</div>
+        </div>
+        <div class="metric-card cyan">
+          <div class="metric-label">准确率</div>
+          <div class="metric-value cyan">${overallPrecision}</div>
+        </div>
+        <div class="metric-card purple">
+          <div class="metric-label">召回率</div>
+          <div class="metric-value purple">${overallRecall}</div>
+        </div>
+        <div class="metric-card purple">
+          <div class="metric-label">上次评测</div>
+          <div class="metric-value purple" style="font-size:1.3rem">${ev.lastEvalDate}</div>
+        </div>
+      </div>
+      <div class="screen2-charts" style="grid-template-columns: 1fr;">
+        <div class="chart-box">
+          <div class="chart-title">📈 能力维度雷达（F1分数）</div>
+          <div class="chart-container" id="radarChart_${idx}"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">🎯</span> 三级标签准召率</div>
+        <table class="eval-table">
+          <thead>
+            <tr>
+              <th>三级标签</th>
+              <th>准确率</th>
+              <th>召回率</th>
+              <th>F1分数</th>
+            </tr>
+          </thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+    `;
+
+    container.appendChild(screenDiv);
+  });
+}
+
+// ============================================================
+// 评测屏幕的 ECharts 雷达图 — 通用渲染函数
+// ============================================================
+function renderEvalChart(evalIdx) {
+  const ev = DATA.evaluations[evalIdx];
+  const isNum = v => typeof v === 'number' && isFinite(v);
+
+  // 当前版本 F1
+  const f1Data = ev.precisionRecall.map(pr => ({
+    name: pr.scenario,
+    f1: isNum(pr.precision) && isNum(pr.recall) && (pr.precision + pr.recall) > 0
+      ? parseFloat((2 * pr.precision * pr.recall / (pr.precision + pr.recall)).toFixed(1))
+      : 0
+  }));
+
+  // 上一版本 F1
+  const prevF1 = (ev.previousPrecisionRecall || []).map(pr =>
+    isNum(pr.precision) && isNum(pr.recall) && (pr.precision + pr.recall) > 0
+      ? parseFloat((2 * pr.precision * pr.recall / (pr.precision + pr.recall)).toFixed(1))
+      : 0
+  );
+
+  const radarDom = document.getElementById(`radarChart_${evalIdx}`);
+  if (!radarDom) return;
+
+  const chart = echarts.init(radarDom, null, { renderer: 'canvas' });
+  evalChartInstances[evalIdx] = chart;
+
+  chart.setOption({
+    animation: true,
+    animationDuration: 1200,
+    tooltip: {
+      trigger: 'item',
+      formatter: function(params) {
+        let res = params.seriesName + '<br/>';
+        f1Data.forEach((d, i) => {
+          res += d.name + ': ' + params.value[i] + '分<br/>';
+        });
+        return res;
+      }
+    },
+    legend: {
+      bottom: 0,
+      textStyle: { color: '#94a3b8', fontSize: 12 },
+      data: ['当前版本', '上一版本']
+    },
+    radar: {
+      indicator: f1Data.map(d => ({ name: d.name, max: 100 })),
+      axisName: { color: '#94a3b8', fontSize: 12 },
+      splitLine: { lineStyle: { color: 'rgba(148,163,184,0.1)' } },
+      splitArea: { areaStyle: { color: ['rgba(59,130,246,0.02)', 'rgba(59,130,246,0.04)'] } },
+      axisLine: { lineStyle: { color: 'rgba(148,163,184,0.1)' } }
+    },
+    series: [{
+      type: 'radar',
+      data: [
+        {
+          name: '当前版本',
+          value: f1Data.map(d => d.f1),
+          areaStyle: { color: 'rgba(74, 222, 128, 0.15)' },
+          lineStyle: { color: '#4ade80', width: 2 },
+          itemStyle: { color: '#4ade80' },
+          symbol: 'circle',
+          symbolSize: 6
+        },
+        {
+          name: '上一版本',
+          value: prevF1,
+          areaStyle: { color: 'rgba(148, 163, 184, 0.08)' },
+          lineStyle: { color: '#64748b', width: 1, type: 'dashed' },
+          itemStyle: { color: '#64748b' },
+          symbol: 'circle',
+          symbolSize: 4
+        }
+      ]
+    }]
+  });
+}
+
+// ============================================================
+// 文档门户（原屏幕3，现在是最后一屏）
+// ============================================================
+function renderMembersScreen() {
+  const members = DATA.members;
+  const avatarColors = ['c0', 'c1', 'c2', 'c3'];
+  const statusLabels = {
+    completed: '已完成',
+    inProgress: '进行中',
+    notStarted: '未开始'
+  };
+  const docIcons = {
+    prd: '📋',
+    report: '📊',
+    tech: '⚙️',
+    other: '📄'
+  };
+  const progressColors = {
+    completed: 'green',
+    inProgress: 'blue',
+    notStarted: 'yellow'
+  };
+
+  document.getElementById('membersGrid').innerHTML = members.map((m, i) => `
+    <div class="member-card">
+      <div class="member-header">
+        <div class="member-avatar ${avatarColors[i % 4]}">${m.name.slice(-1)}</div>
+        <div>
+          <div class="member-name">${m.name}</div>
+          <div class="member-role">${m.role}</div>
+        </div>
+        <div style="margin-left:auto">
+          <span class="status-tag ${m.status}">${statusLabels[m.status]}</span>
+        </div>
+      </div>
+      <div class="member-task">
+        <span class="member-task-label">当前任务：${m.currentTask}</span>
+      </div>
+      <div class="member-progress-row">
+        <div class="progress-bar" style="flex:1">
+          <div class="progress-fill ${progressColors[m.status]}" style="width:${m.progress}%"></div>
+        </div>
+        <span class="member-progress-pct">${m.progress}%</span>
+      </div>
+      <div class="member-docs">
+        ${m.documents.map(d => `
+          <a class="doc-item" href="${d.url}" target="_blank" title="点击打开企微文档">
+            <span class="doc-icon">${docIcons[d.type] || docIcons.other}</span>
+            <div class="doc-info">
+              <div class="doc-title">${d.title}</div>
+              <div class="doc-meta">${d.updateDate}</div>
+            </div>
+            <span class="doc-arrow">→</span>
+          </a>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// 定时刷新数据（每5分钟）
+// ============================================================
+setInterval(loadData, 5 * 60 * 1000);
+
+// ============================================================
+// 窗口resize时重绘所有图表
+// ============================================================
+window.addEventListener('resize', () => {
+  evalChartInstances.forEach(inst => {
+    if (inst) inst.resize();
+  });
+});
+
+// ============================================================
+// 启动
+// ============================================================
+renderNav();
+loadData();
+
+</script>
+</body>
+</html>

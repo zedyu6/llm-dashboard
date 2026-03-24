@@ -1,0 +1,137 @@
+{
+  "config": {
+    "title": "玲音大模型能力建设",
+    "subtitle": "进展大屏",
+    "autoPlay": false,
+    "autoPlayInterval": 30,
+    "theme": "dark"
+  },
+
+  "project": {
+    "summary": {
+      "totalTasks": 10,
+      "completed": 2,
+      "inProgress": 1,
+      "blocked": 0,
+      "notStarted": 7
+    },
+    "milestones": [
+      { "name": "标题问题V1模型", "status": "completed", "date": "2026-03-13" },
+      { "name": "广告&宣传V1模型", "status": "completed", "date": "2026-03-20" },
+      { "name": "非正规来源第一批语料粗标", "status": "inProgress", "date": "2026-03-30", "progress": 18 },
+      { "name": "标题党", "status": "notStarted", "date": "", "progress": 0 },
+      { "name": "封面问题", "status": "notStarted", "date": "", "progress": 0 },
+      { "name": "内文问题", "status": "notStarted", "date": "", "progress": 0 },
+      { "name": "调性差", "status": "notStarted", "date": "", "progress": 0 },
+      { "name": "安全问题", "status": "notStarted", "date": "", "progress": 0 }
+    ],
+    "weeklyHighlights": [
+      "完成标题问题V1模型评测",
+      "评测广告宣传V1模型",
+      "针对地方新闻、个人倾向性表述等标签提精标需求；补充规则定义"
+    ],
+    "risks": [
+      { "content": "无", "level": "" }
+    ]
+  },
+
+  "evaluations": [
+    {
+      "currentModel": "标题问题V1",
+      "lastEvalDate": "2026-03-13",
+      "precisionRecall": [
+        { "scenario": "非资讯标题", "precision": 84.11, "recall": 42.45 },
+        { "scenario": "地方新闻类", "precision": 100.00, "recall": 5.79 },
+        { "scenario": "个人倾向性表述", "precision": 33.33, "recall": 36.84 },
+        { "scenario": "标题序号", "precision": 100.00, "recall": 50.00 },
+        { "scenario": "观点不明", "precision": 34.78, "recall": 44.44 },
+        { "scenario": "错别字、病句", "precision": 66.67, "recall": 11.76 },
+        { "scenario": "影视剧标题", "precision": 0, "recall": 0 },
+        { "scenario": "标题破碎", "precision": 25.00, "recall": 18.18 }
+      ],
+      "previousPrecisionRecall": [
+        { "scenario": "非资讯标题", "precision": 0, "recall": 0 },
+        { "scenario": "地方新闻类", "precision": 0, "recall": 0 },
+        { "scenario": "个人倾向性表述", "precision": 0, "recall": 0 },
+        { "scenario": "标题序号", "precision": 0, "recall": 0 },
+        { "scenario": "观点不明", "precision": 0, "recall": 0 },
+        { "scenario": "错别字、病句", "precision": 0, "recall": 0 },
+        { "scenario": "影视剧标题", "precision": 0, "recall": 0 },
+        { "scenario": "标题破碎", "precision": 0, "recall": 0 }
+      ],
+      "reduceReviewCount": "1200",
+      "overallPrecision": "95%",
+      "overallRecall": "46%",
+      "detailDocUrl": "https://doc.weixin.qq.com/your-eval-report-link"
+    },
+    {
+      "currentModel": "广告宣传V1",
+      "lastEvalDate": "待评测",
+      "precisionRecall": [
+        { "scenario": "平台导流", "precision": --, "recall": -- },
+        { "scenario": "引导售卖", "precision": --, "recall": -- },
+        { "scenario": "宣传类", "precision": --, "recall": -- }
+      ],
+      "previousPrecisionRecall": [
+        { "scenario": "平台导流", "precision": 0, "recall": 0 },
+        { "scenario": "引导售卖", "precision": 0, "recall": 0 },
+        { "scenario": "宣传类", "precision": 0, "recall": 0 }
+      ],
+      "reduceReviewCount": "--",
+      "overallPrecision": "--",
+      "overallRecall": "--",
+      "detailDocUrl": "https://doc.weixin.qq.com/your-eval-report-link-ad"
+    }
+  ],
+
+  "members": [
+    {
+      "name": "张三",
+      "avatar": "",
+      "role": "产品负责人",
+      "currentTask": "多轮对话能力PRD",
+      "status": "inProgress",
+      "progress": 80,
+      "documents": [
+        { "title": "多轮对话能力需求PRD", "url": "https://doc.weixin.qq.com/xxx1", "type": "prd", "updateDate": "2026-03-22" },
+        { "title": "对话体验评估标准", "url": "https://doc.weixin.qq.com/xxx2", "type": "report", "updateDate": "2026-03-18" }
+      ]
+    },
+    {
+      "name": "李四",
+      "avatar": "",
+      "role": "产品经理",
+      "currentTask": "RAG知识库优化方案",
+      "status": "inProgress",
+      "progress": 55,
+      "documents": [
+        { "title": "RAG知识库产品方案", "url": "https://doc.weixin.qq.com/xxx3", "type": "prd", "updateDate": "2026-03-21" },
+        { "title": "检索效果分析报告", "url": "https://doc.weixin.qq.com/xxx4", "type": "report", "updateDate": "2026-03-19" }
+      ]
+    },
+    {
+      "name": "王五",
+      "avatar": "",
+      "role": "产品经理",
+      "currentTask": "Agent框架能力规划",
+      "status": "notStarted",
+      "progress": 10,
+      "documents": [
+        { "title": "Agent能力建设规划", "url": "https://doc.weixin.qq.com/xxx5", "type": "prd", "updateDate": "2026-03-20" }
+      ]
+    },
+    {
+      "name": "赵六",
+      "avatar": "",
+      "role": "产品经理",
+      "currentTask": "评测体系迭代优化",
+      "status": "completed",
+      "progress": 100,
+      "documents": [
+        { "title": "评测体系2.0方案", "url": "https://doc.weixin.qq.com/xxx6", "type": "prd", "updateDate": "2026-03-17" },
+        { "title": "3月评测报告", "url": "https://doc.weixin.qq.com/xxx7", "type": "report", "updateDate": "2026-03-20" },
+        { "title": "竞品模型对比分析", "url": "https://doc.weixin.qq.com/xxx8", "type": "report", "updateDate": "2026-03-15" }
+      ]
+    }
+  ]
+}

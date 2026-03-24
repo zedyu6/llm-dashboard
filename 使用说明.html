@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>看板使用说明 — 给产品团队</title>
+<style>
+  :root {
+    --bg: #fafbfc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --text2: #64748b;
+    --blue: #2563eb;
+    --blue-bg: #dbeafe;
+    --green: #059669;
+    --green-bg: #d1fae5;
+    --yellow: #d97706;
+    --yellow-bg: #fef3c7;
+    --red: #dc2626;
+    --red-bg: #fee2e2;
+    --border: #e2e8f0;
+    --code-bg: #f1f5f9;
+    --radius: 10px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'PingFang SC', 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    padding: 40px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    color: var(--text2);
+    margin-bottom: 32px;
+    font-size: 1rem;
+  }
+  h2 {
+    font-size: 1.25rem;
+    margin: 32px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--blue);
+    display: inline-block;
+  }
+  h3 {
+    font-size: 1.05rem;
+    margin: 20px 0 8px;
+    color: var(--blue);
+  }
+  p { margin-bottom: 12px; font-size: 0.95rem; }
+  ul { padding-left: 24px; margin-bottom: 12px; }
+  li { margin-bottom: 6px; font-size: 0.95rem; }
+  .tip {
+    background: var(--blue-bg);
+    border-left: 4px solid var(--blue);
+    padding: 14px 18px;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    margin: 16px 0;
+    font-size: 0.92rem;
+  }
+  .warn {
+    background: var(--yellow-bg);
+    border-left: 4px solid var(--yellow);
+    padding: 14px 18px;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    margin: 16px 0;
+    font-size: 0.92rem;
+  }
+  .success {
+    background: var(--green-bg);
+    border-left: 4px solid var(--green);
+    padding: 14px 18px;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    margin: 16px 0;
+    font-size: 0.92rem;
+  }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  }
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 20px;
+    border-radius: var(--radius);
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin: 12px 0;
+    font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  }
+  pre .comment { color: #64748b; }
+  pre .key { color: #60a5fa; }
+  pre .string { color: #4ade80; }
+  pre .number { color: #facc15; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    text-align: left;
+  }
+  th { background: var(--code-bg); font-weight: 600; }
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--blue);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-right: 8px;
+  }
+  .file-tree {
+    background: var(--code-bg);
+    padding: 16px 20px;
+    border-radius: var(--radius);
+    font-family: monospace;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin: 12px 0;
+  }
+  .kbd {
+    display: inline-block;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-family: monospace;
+    font-size: 0.82rem;
+  }
+</style>
+</head>
+<body>
+
+<h1>📺 大屏看板使用说明</h1>
+<p class="subtitle">写给产品团队的零代码维护指南 — 你只需要会改JSON文件就行</p>
+
+<!-- ==================== -->
+<h2>📁 文件说明</h2>
+
+<div class="file-tree">
+llm-dashboard/<br>
+├── <strong>index.html</strong> &nbsp;&nbsp;&nbsp;&nbsp;← 看板主页面（不需要改）<br>
+├── data/<br>
+│ &nbsp;&nbsp;└── <strong>dashboard.json</strong> &nbsp;&nbsp;← ⭐ 你唯一需要改的文件<br>
+└── 使用说明.html &nbsp;&nbsp;← 你正在看的这个
+</div>
+
+<div class="success">
+  <strong>核心原则</strong>：你只需要修改 <code>data/dashboard.json</code> 这一个文件。修改后，刷新浏览器就能看到更新。
+</div>
+
+<!-- ==================== -->
+<h2>🚀 怎么打开看板</h2>
+
+<p><span class="step-num">1</span>双击 <code>index.html</code> 文件，浏览器会自动打开</p>
+<p><span class="step-num">2</span>按 <span class="kbd">F</span> 键进入全屏模式</p>
+<p><span class="step-num">3</span>连接电视投屏（HDMI或无线投屏都可以）</p>
+
+<div class="tip">
+  <strong>快捷键：</strong><br>
+  <span class="kbd">←</span> <span class="kbd">→</span> 手动切换页面 &nbsp;
+  <span class="kbd">Space</span> 暂停/继续自动轮播 &nbsp;
+  <span class="kbd">F</span> 全屏/退出全屏
+</div>
+
+<!-- ==================== -->
+<h2>✏️ 怎么更新数据</h2>
+
+<p>用任意文本编辑器（推荐 VS Code，也可以用记事本）打开 <code>data/dashboard.json</code>，修改对应内容，保存后刷新浏览器即可。</p>
+
+<div class="warn">
+  <strong>注意：</strong>JSON格式很严格，漏一个逗号就会出错。修改前建议先复制一份备份。如果改坏了，可以用备份恢复。
+</div>
+
+<!-- ==================== -->
+<h3>1️⃣ 更新项目进展数据</h3>
+
+<p>找到 <code>"project"</code> 下面的 <code>"summary"</code>，修改对应数字：</p>
+
+<pre>
+<span class="key">"summary"</span>: {
+  <span class="key">"totalTasks"</span>: <span class="number">24</span>,        <span class="comment">← 总任务数</span>
+  <span class="key">"completed"</span>: <span class="number">15</span>,         <span class="comment">← 已完成数</span>
+  <span class="key">"inProgress"</span>: <span class="number">6</span>,         <span class="comment">← 进行中数</span>
+  <span class="key">"blocked"</span>: <span class="number">1</span>,            <span class="comment">← 阻塞数</span>
+  <span class="key">"notStarted"</span>: <span class="number">2</span>          <span class="comment">← 未开始数</span>
+}
+</pre>
+
+<h3>2️⃣ 更新里程碑</h3>
+
+<p>找到 <code>"milestones"</code> 数组，每个里程碑的格式：</p>
+
+<pre>
+{
+  <span class="key">"name"</span>: <span class="string">"Prompt工程优化"</span>,     <span class="comment">← 里程碑名称</span>
+  <span class="key">"status"</span>: <span class="string">"inProgress"</span>,       <span class="comment">← 状态（见下表）</span>
+  <span class="key">"date"</span>: <span class="string">"2026-03-30"</span>,          <span class="comment">← 预计完成日期</span>
+  <span class="key">"progress"</span>: <span class="number">65</span>                <span class="comment">← 进度百分比（0-100）</span>
+}
+</pre>
+
+<table>
+  <tr><th>status 值</th><th>含义</th><th>看板显示</th></tr>
+  <tr><td><code>"completed"</code></td><td>已完成</td><td>✅ 绿色标签</td></tr>
+  <tr><td><code>"inProgress"</code></td><td>进行中</td><td>🔵 蓝色进度条</td></tr>
+  <tr><td><code>"notStarted"</code></td><td>未开始</td><td>⚪ 灰色</td></tr>
+</table>
+
+<h3>3️⃣ 更新评测数据</h3>
+
+<p>找到 <code>"evaluation"</code> 部分：</p>
+
+<pre>
+<span class="key">"evaluation"</span>: {
+  <span class="key">"currentModel"</span>: <span class="string">"内部模型 v2.3"</span>,   <span class="comment">← 当前模型名</span>
+  <span class="key">"lastEvalDate"</span>: <span class="string">"2026-03-20"</span>,      <span class="comment">← 上次评测日期</span>
+  <span class="key">"overallScore"</span>: <span class="number">78.5</span>,              <span class="comment">← 综合得分</span>
+  <span class="key">"previousScore"</span>: <span class="number">72.1</span>,             <span class="comment">← 上一版得分（用于计算变化）</span>
+  ...
+}
+</pre>
+
+<p><strong>更新各维度得分</strong>（雷达图会自动变化）：</p>
+
+<pre>
+<span class="key">"dimensions"</span>: [
+  { <span class="key">"name"</span>: <span class="string">"多轮对话"</span>, <span class="key">"score"</span>: <span class="number">82</span>, <span class="key">"previousScore"</span>: <span class="number">75</span>, <span class="key">"fullScore"</span>: <span class="number">100</span> },
+  { <span class="key">"name"</span>: <span class="string">"知识问答"</span>, <span class="key">"score"</span>: <span class="number">85</span>, <span class="key">"previousScore"</span>: <span class="number">80</span>, <span class="key">"fullScore"</span>: <span class="number">100</span> },
+  <span class="comment">... 直接改 score 数字就行，雷达图自动更新</span>
+]
+</pre>
+
+<p><strong>更新准召率数据</strong>：</p>
+
+<pre>
+<span class="key">"precisionRecall"</span>: [
+  { <span class="key">"scenario"</span>: <span class="string">"客服问答"</span>, <span class="key">"precision"</span>: <span class="number">89.2</span>, <span class="key">"recall"</span>: <span class="number">83.5</span> },
+  <span class="comment">... precision = 准确率, recall = 召回率</span>
+]
+</pre>
+
+<p><strong>新增一个版本的得分</strong>（趋势图会多一个点）：</p>
+
+<pre>
+<span class="key">"versionTrend"</span>: [
+  ... 已有的版本不要删 ...
+  { <span class="key">"version"</span>: <span class="string">"v2.5"</span>, <span class="key">"score"</span>: <span class="number">82.0</span>, <span class="key">"date"</span>: <span class="string">"2026-04"</span> }  <span class="comment">← 新加这行</span>
+]
+</pre>
+
+<h3>4️⃣ 更新团队成员 & 文档</h3>
+
+<p>找到 <code>"members"</code> 数组，每个成员的格式：</p>
+
+<pre>
+{
+  <span class="key">"name"</span>: <span class="string">"张三"</span>,
+  <span class="key">"role"</span>: <span class="string">"产品负责人"</span>,
+  <span class="key">"currentTask"</span>: <span class="string">"多轮对话能力PRD"</span>,       <span class="comment">← 当前在做什么</span>
+  <span class="key">"status"</span>: <span class="string">"inProgress"</span>,               <span class="comment">← 状态</span>
+  <span class="key">"progress"</span>: <span class="number">80</span>,                         <span class="comment">← 进度百分比</span>
+  <span class="key">"documents"</span>: [
+    {
+      <span class="key">"title"</span>: <span class="string">"多轮对话能力需求PRD"</span>,     <span class="comment">← 文档标题</span>
+      <span class="key">"url"</span>: <span class="string">"https://doc.weixin.qq.com/xxx"</span>,  <span class="comment">← 企微文档链接</span>
+      <span class="key">"type"</span>: <span class="string">"prd"</span>,                      <span class="comment">← 类型：prd / report</span>
+      <span class="key">"updateDate"</span>: <span class="string">"2026-03-22"</span>           <span class="comment">← 更新日期</span>
+    }
+  ]
+}
+</pre>
+
+<div class="tip">
+  <strong>添加新成员：</strong>复制一个已有成员的整段，粘贴在最后一个 <code>}</code> 后面（记得加逗号），然后修改内容。<br>
+  <strong>添加新文档：</strong>在某个成员的 <code>"documents"</code> 数组里，复制一条已有的，粘贴后修改。
+</div>
+
+<h3>5️⃣ 修改看板配置</h3>
+
+<pre>
+<span class="key">"config"</span>: {
+  <span class="key">"title"</span>: <span class="string">"大模型能力建设项目"</span>,    <span class="comment">← 看板标题</span>
+  <span class="key">"subtitle"</span>: <span class="string">"项目作战大屏"</span>,       <span class="comment">← 副标题</span>
+  <span class="key">"autoPlay"</span>: <span class="number">true</span>,                 <span class="comment">← 是否自动轮播（true/false）</span>
+  <span class="key">"autoPlayInterval"</span>: <span class="number">30</span>,           <span class="comment">← 自动切换间隔（秒）</span>
+  <span class="key">"theme"</span>: <span class="string">"dark"</span>                   <span class="comment">← 主题（目前只有dark）</span>
+}
+</pre>
+
+<!-- ==================== -->
+<h2>🔧 常见问题</h2>
+
+<h3>Q: 改了JSON后看板没变化？</h3>
+<p>按 <span class="kbd">Ctrl</span>+<span class="kbd">Shift</span>+<span class="kbd">R</span>（Mac: <span class="kbd">Cmd</span>+<span class="kbd">Shift</span>+<span class="kbd">R</span>）强制刷新浏览器。</p>
+
+<h3>Q: 页面一片空白？</h3>
+<p>JSON格式写错了。常见原因：少了逗号、多了逗号、引号不配对。用 <a href="https://jsonlint.com" target="_blank">jsonlint.com</a> 检查一下你的JSON格式。</p>
+
+<h3>Q: 怎么加新的评测维度？</h3>
+<p>在 <code>"dimensions"</code> 数组里加一条新的就行，雷达图会自动多一个角。</p>
+
+<h3>Q: 怎么加新的场景准召数据？</h3>
+<p>在 <code>"precisionRecall"</code> 数组里加一条：<code>{ "scenario": "新场景", "precision": 85.0, "recall": 80.0 }</code></p>
+
+<h3>Q: 企微文档链接怎么获取？</h3>
+<p>在企微文档右上角点「分享」→「复制链接」，粘贴到JSON的 <code>"url"</code> 里即可。点击卡片上的文档会在新窗口打开。</p>
+
+<div class="success">
+  <strong>有任何问题，直接把 <code>dashboard.json</code> 文件发给我，我来帮你改。</strong>
+</div>
+
+</body>
+</html>
