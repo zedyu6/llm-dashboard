@@ -1,7 +1,8 @@
 {
   "config": {
-    "title": "玲音大模型能力建设",
+    "title": "插件能力学习与应用",
     "subtitle": "进展大屏",
+    "overallGoal": "用大模型替代人审，解决降量问题，4月底训完所有标签，降量4000条",
     "autoPlay": false,
     "autoPlayInterval": 30,
     "theme": "dark"
@@ -9,21 +10,77 @@
 
   "project": {
     "summary": {
-      "totalTasks": 10,
-      "completed": 2,
-      "inProgress": 1,
-      "blocked": 0,
-      "notStarted": 7
+      "totalLabels": 8,
+      "evalCompleted": 2,
+      "labeling": 1,
+      "notStarted": 5
     },
-    "milestones": [
-      { "name": "标题问题V1模型", "status": "completed", "date": "2026-03-13" },
-      { "name": "广告&宣传V1模型", "status": "completed", "date": "2026-03-20" },
-      { "name": "非正规来源第一批语料粗标", "status": "inProgress", "date": "2026-03-30", "progress": 18 },
-      { "name": "标题党", "status": "notStarted", "date": "", "progress": 0 },
-      { "name": "封面问题", "status": "notStarted", "date": "", "progress": 0 },
-      { "name": "内文问题", "status": "notStarted", "date": "", "progress": 0 },
-      { "name": "调性差", "status": "notStarted", "date": "", "progress": 0 },
-      { "name": "安全问题", "status": "notStarted", "date": "", "progress": 0 }
+    "pipeline": [
+      "标签及规则定义",
+      "语料标注",
+      "投入训练",
+      "离线评测",
+      "上线空跑",
+      "验证线上效果",
+      "放量生效"
+    ],
+    "labels": [
+      {
+        "name": "标题问题",
+        "currentStep": 4,
+        "evalModel": "标题问题V1",
+        "evalDocUrl": "https://doc.weixin.qq.com/your-eval-report-link",
+        "status": "上线空跑"
+      },
+      {
+        "name": "广告&宣传",
+        "currentStep": 3,
+        "evalModel": "广告宣传V1",
+        "evalDocUrl": "https://doc.weixin.qq.com/your-eval-report-link-ad",
+        "status": "离线评测"
+      },
+      {
+        "name": "非正规来源",
+        "currentStep": 1,
+        "evalModel": null,
+        "evalDocUrl": "",
+        "status": "语料标注"
+      },
+      {
+        "name": "标题党",
+        "currentStep": 0,
+        "evalModel": null,
+        "evalDocUrl": "",
+        "status": "标签及规则定义"
+      },
+      {
+        "name": "封面问题",
+        "currentStep": -1,
+        "evalModel": null,
+        "evalDocUrl": "",
+        "status": "未开始"
+      },
+      {
+        "name": "内文问题",
+        "currentStep": -1,
+        "evalModel": null,
+        "evalDocUrl": "",
+        "status": "未开始"
+      },
+      {
+        "name": "调性差",
+        "currentStep": -1,
+        "evalModel": null,
+        "evalDocUrl": "",
+        "status": "未开始"
+      },
+      {
+        "name": "安全问题",
+        "currentStep": -1,
+        "evalModel": null,
+        "evalDocUrl": "",
+        "status": "未开始"
+      }
     ],
     "weeklyHighlights": [
       "完成标题问题V1模型评测",
@@ -68,9 +125,9 @@
       "currentModel": "广告宣传V1",
       "lastEvalDate": "待评测",
       "precisionRecall": [
-        { "scenario": "平台导流", "precision": --, "recall": -- },
-        { "scenario": "引导售卖", "precision": --, "recall": -- },
-        { "scenario": "宣传类", "precision": --, "recall": -- }
+        { "scenario": "平台导流", "precision": "--", "recall": "--" },
+        { "scenario": "引导售卖", "precision": "--", "recall": "--" },
+        { "scenario": "宣传类", "precision": "--", "recall": "--" }
       ],
       "previousPrecisionRecall": [
         { "scenario": "平台导流", "precision": 0, "recall": 0 },

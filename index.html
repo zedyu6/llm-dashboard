@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>玲音大模型能力建设 — 进展大屏</title>
+<title>插件能力学习与应用 — 进展大屏</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <style>
 /* ============================================================
@@ -221,6 +221,33 @@ body {
   font-size: 1rem;
 }
 
+/* 整体目标横幅 */
+.goal-banner {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(168, 85, 247, 0.08));
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: var(--radius);
+  padding: 16px 28px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.goal-banner .goal-icon {
+  font-size: 1.5rem;
+}
+
+.goal-banner .goal-text {
+  font-size: var(--text-body);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.goal-banner .goal-text strong {
+  color: var(--blue-400);
+  font-weight: 600;
+}
+
 /* 指标卡 */
 .metric-grid {
   display: grid;
@@ -332,46 +359,213 @@ body {
   gap: 20px;
 }
 
-.milestone-item {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border-light);
+/* ============================================================
+   流程图组件
+   ============================================================ */
+.pipeline-section {
+  margin-bottom: 24px;
 }
 
-.milestone-item:last-child { border-bottom: none; }
-
-.milestone-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+.pipeline-label-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
+  margin-bottom: 18px;
+  padding: 14px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  position: relative;
+}
+
+.pipeline-label-name {
+  font-size: var(--text-body);
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 100px;
   flex-shrink: 0;
 }
 
-.milestone-icon.completed { background: var(--green-bg); }
-.milestone-icon.inProgress { background: rgba(59, 130, 246, 0.12); }
-.milestone-icon.notStarted { background: rgba(100, 116, 139, 0.12); }
-
-.milestone-info { flex: 1; }
-
-.milestone-name {
-  font-size: var(--text-body);
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.milestone-date {
+.pipeline-label-status {
   font-size: var(--text-small);
   color: var(--text-tertiary);
+  margin-left: 12px;
+  flex-shrink: 0;
 }
 
-.milestone-progress {
-  width: 100px;
+.pipeline-flow {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  margin-left: 24px;
+  gap: 0;
+  position: relative;
+}
+
+.pipeline-step {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.pipeline-node {
+  width: 108px;
+  height: 38px;
+  border-radius: 19px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: all var(--transition);
+  position: relative;
+  cursor: default;
+  white-space: nowrap;
+}
+
+/* 已完成节点（实心） */
+.pipeline-node.done {
+  background: linear-gradient(135deg, var(--green-500), var(--green-400));
+  color: #fff;
+  border: 2px solid var(--green-400);
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.25);
+}
+
+/* 当前进行中节点（实心蓝色 + 脉冲动画） */
+.pipeline-node.current {
+  background: linear-gradient(135deg, var(--blue-600), var(--blue-400));
+  color: #fff;
+  border: 2px solid var(--blue-400);
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.35);
+  animation: nodePulse 2s infinite;
+}
+
+@keyframes nodePulse {
+  0%, 100% { box-shadow: 0 0 16px rgba(59, 130, 246, 0.35); }
+  50% { box-shadow: 0 0 24px rgba(59, 130, 246, 0.55); }
+}
+
+/* 未来节点（空心虚线） */
+.pipeline-node.future {
+  background: transparent;
+  color: var(--text-muted);
+  border: 2px dashed var(--text-muted);
+}
+
+/* 未开始标签的所有节点（更淡） */
+.pipeline-node.idle {
+  background: transparent;
+  color: var(--text-muted);
+  border: 2px dashed rgba(100, 116, 139, 0.3);
+  opacity: 0.5;
+}
+
+/* 箭头连线 */
+.pipeline-arrow {
+  width: 28px;
+  height: 2px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.pipeline-arrow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 6px;
+  height: 2px;
+}
+
+.pipeline-arrow::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+.pipeline-arrow.done::before { background: var(--green-400); }
+.pipeline-arrow.done::after { border-left: 6px solid var(--green-400); }
+
+.pipeline-arrow.current::before { background: var(--blue-400); }
+.pipeline-arrow.current::after { border-left: 6px solid var(--blue-400); }
+
+.pipeline-arrow.future::before {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--text-muted) 0,
+    var(--text-muted) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+.pipeline-arrow.future::after { border-left: 6px solid var(--text-muted); }
+
+.pipeline-arrow.idle::before {
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(100, 116, 139, 0.3) 0,
+    rgba(100, 116, 139, 0.3) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+.pipeline-arrow.idle::after { border-left: 6px solid rgba(100, 116, 139, 0.3); }
+
+/* 回环箭头（语料标注 ↔ 投入训练） */
+.pipeline-loop {
+  position: absolute;
+  top: -20px;
+  pointer-events: none;
+}
+
+.pipeline-loop svg {
+  overflow: visible;
+}
+
+/* 评测效果悬浮框 */
+.eval-tooltip {
+  position: absolute;
+  top: -42px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.9), rgba(139, 92, 246, 0.9));
+  color: #fff;
+  padding: 5px 14px;
+  border-radius: 16px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all var(--transition);
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.eval-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid rgba(119, 97, 239, 0.9);
+}
+
+.eval-tooltip:hover {
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45);
+}
+
+/* 整个标签行不开始的状态 */
+.pipeline-label-row.not-started {
+  opacity: 0.45;
 }
 
 /* 周高亮 */
@@ -798,24 +992,23 @@ body:hover .controls-hint { opacity: 1; }
   <!-- 屏幕1：项目总览 -->
   <div class="screen active" id="screen1">
     <div class="screen-label">
-      <span>📊 项目总览</span>
+      <span>📊 学习进度</span>
       <div class="line"></div>
     </div>
+    <div id="goalBanner"></div>
     <div class="metric-grid" id="projectMetrics"></div>
-    <div class="screen1-grid">
+    <div class="card" style="margin-bottom: 20px;">
+      <div class="card-title"><span class="icon">🔄</span> 学习进度</div>
+      <div id="pipelineContainer"></div>
+    </div>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
       <div class="card">
-        <div class="card-title"><span class="icon">🎯</span> 任务进展</div>
-        <div id="milestoneList"></div>
+        <div class="card-title"><span class="icon">✨</span> 本周要点</div>
+        <div id="highlightsList"></div>
       </div>
-      <div>
-        <div class="card" style="margin-bottom: 20px;">
-          <div class="card-title"><span class="icon">✨</span> 本周要点</div>
-          <div id="highlightsList"></div>
-        </div>
-        <div class="card">
-          <div class="card-title"><span class="icon">⚠️</span> 风险项</div>
-          <div id="risksList"></div>
-        </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">⚠️</span> 风险项</div>
+        <div id="risksList"></div>
       </div>
     </div>
   </div>
@@ -857,29 +1050,38 @@ body:hover .controls-hint { opacity: 1; }
 // ============================================================
 const EMBEDDED_DATA = {
   "config": {
-    "title": "玲音大模型能力建设",
+    "title": "插件能力学习与应用",
     "subtitle": "进展大屏",
+    "overallGoal": "用大模型替代人审，解决降量问题，4月底训完所有标签，降量4000条",
     "autoPlay": false,
     "autoPlayInterval": 30,
     "theme": "dark"
   },
   "project": {
     "summary": {
-      "totalTasks": 10,
-      "completed": 2,
-      "inProgress": 1,
-      "blocked": 0,
-      "notStarted": 7
+      "totalLabels": 8,
+      "evalCompleted": 2,
+      "labeling": 1,
+      "notStarted": 5
     },
-    "milestones": [
-      { "name": "标题问题V1模型", "status": "completed", "date": "2026-03-13" },
-      { "name": "广告&宣传V1模型", "status": "completed", "date": "2026-03-20" },
-      { "name": "非正规来源第一批语料粗标", "status": "inProgress", "date": "2026-03-30", "progress": 18 },
-      { "name": "标题党", "status": "notStarted", "date": "", "progress": 0 },
-      { "name": "封面问题", "status": "notStarted", "date": "", "progress": 0 },
-      { "name": "内文问题", "status": "notStarted", "date": "", "progress": 0 },
-      { "name": "调性差", "status": "notStarted", "date": "", "progress": 0 },
-      { "name": "安全问题", "status": "notStarted", "date": "", "progress": 0 }
+    "pipeline": [
+      "标签及规则定义",
+      "语料标注",
+      "投入训练",
+      "离线评测",
+      "上线空跑",
+      "验证线上效果",
+      "放量生效"
+    ],
+    "labels": [
+      { "name": "标题问题", "currentStep": 4, "evalModel": "标题问题V1", "evalDocUrl": "https://doc.weixin.qq.com/your-eval-report-link", "status": "上线空跑" },
+      { "name": "广告&宣传", "currentStep": 3, "evalModel": "广告宣传V1", "evalDocUrl": "https://doc.weixin.qq.com/your-eval-report-link-ad", "status": "离线评测" },
+      { "name": "非正规来源", "currentStep": 1, "evalModel": null, "evalDocUrl": "", "status": "语料标注" },
+      { "name": "标题党", "currentStep": 0, "evalModel": null, "evalDocUrl": "", "status": "标签及规则定义" },
+      { "name": "封面问题", "currentStep": -1, "evalModel": null, "evalDocUrl": "", "status": "未开始" },
+      { "name": "内文问题", "currentStep": -1, "evalModel": null, "evalDocUrl": "", "status": "未开始" },
+      { "name": "调性差", "currentStep": -1, "evalModel": null, "evalDocUrl": "", "status": "未开始" },
+      { "name": "安全问题", "currentStep": -1, "evalModel": null, "evalDocUrl": "", "status": "未开始" }
     ],
     "weeklyHighlights": [
       "完成标题问题V1模型评测",
@@ -1191,57 +1393,112 @@ function renderAll() {
 function renderScreen1() {
   const p = DATA.project;
 
+  // 整体目标横幅
+  const goalEl = document.getElementById('goalBanner');
+  if (DATA.config.overallGoal) {
+    goalEl.innerHTML = `
+      <div class="goal-banner">
+        <span class="goal-icon">🎯</span>
+        <div class="goal-text">整体目标：<strong>${DATA.config.overallGoal}</strong></div>
+      </div>
+    `;
+  }
+
   // 指标卡
-  const total = p.summary.totalTasks;
-  const completionRate = Math.round(p.summary.completed / total * 100);
+  const s = p.summary;
   document.getElementById('projectMetrics').innerHTML = `
     <div class="metric-card blue">
-      <div class="metric-label">总任务数</div>
-      <div class="metric-value blue">${total}</div>
+      <div class="metric-label">一级标签数</div>
+      <div class="metric-value blue">${s.totalLabels}</div>
     </div>
     <div class="metric-card green">
-      <div class="metric-label">已完成</div>
-      <div class="metric-value green">${p.summary.completed}</div>
-      <div class="metric-change up">完成率 ${completionRate}%</div>
+      <div class="metric-label">完成离线评测</div>
+      <div class="metric-value green">${s.evalCompleted}</div>
+      <div class="metric-change up">评测通过率 ${Math.round(s.evalCompleted / s.totalLabels * 100)}%</div>
     </div>
     <div class="metric-card yellow">
-      <div class="metric-label">进行中</div>
-      <div class="metric-value yellow">${p.summary.inProgress}</div>
+      <div class="metric-label">语料标注中</div>
+      <div class="metric-value yellow">${s.labeling}</div>
     </div>
     <div class="metric-card red">
-      <div class="metric-label">阻塞 / 未开始</div>
-      <div class="metric-value red">${p.summary.blocked}<span style="font-size:1.2rem;color:var(--text-muted);"> / </span><span style="font-size:1.5rem;color:var(--text-tertiary)">${p.summary.notStarted}</span></div>
+      <div class="metric-label">未开始</div>
+      <div class="metric-value red">${s.notStarted}</div>
     </div>
   `;
 
-  // 里程碑
-  const statusIcons = {
-    completed: '✅',
-    inProgress: '🔵',
-    notStarted: '⚪'
-  };
-  const progressColors = {
-    completed: 'green',
-    inProgress: 'blue',
-    notStarted: 'blue'
-  };
-  document.getElementById('milestoneList').innerHTML = p.milestones.map(m => `
-    <div class="milestone-item">
-      <div class="milestone-icon ${m.status}">${statusIcons[m.status]}</div>
-      <div class="milestone-info">
-        <div class="milestone-name">${m.name}</div>
-        <div class="milestone-date">${m.date}</div>
-      </div>
-      ${m.status !== 'completed' ? `
-        <div class="milestone-progress">
-          <div style="font-size:var(--text-small);color:var(--text-tertiary);text-align:right;margin-bottom:4px">${m.progress || 0}%</div>
-          <div class="progress-bar">
-            <div class="progress-fill ${progressColors[m.status]}" style="width:${m.progress || 0}%"></div>
+  // 流程图：每个标签一行
+  const pipeline = p.pipeline; // 流程步骤名称数组
+  const labels = p.labels;
+
+  const container = document.getElementById('pipelineContainer');
+  container.innerHTML = labels.map((label, labelIdx) => {
+    const isNotStarted = label.currentStep < 0;
+
+    // 找出该标签对应的评测屏幕索引（如果有 evalModel）
+    let evalScreenIdx = -1;
+    if (label.evalModel && DATA.evaluations) {
+      const eIdx = DATA.evaluations.findIndex(e => e.currentModel === label.evalModel);
+      if (eIdx >= 0) evalScreenIdx = eIdx + 1; // 屏幕索引 = 评测数组索引 + 1
+    }
+
+    const stepsHtml = pipeline.map((stepName, stepIdx) => {
+      let nodeClass = '';
+      let arrowClass = '';
+
+      if (isNotStarted) {
+        nodeClass = 'idle';
+        arrowClass = 'idle';
+      } else if (stepIdx < label.currentStep) {
+        nodeClass = 'done';
+        arrowClass = 'done';
+      } else if (stepIdx === label.currentStep) {
+        nodeClass = 'current';
+        arrowClass = 'current';
+      } else {
+        nodeClass = 'future';
+        arrowClass = 'future';
+      }
+
+      // 离线评测节点（步骤索引 3）上方加评测效果悬浮框
+      let tooltipHtml = '';
+      if (stepIdx === 3 && label.evalModel && label.currentStep >= 3) {
+        const clickAction = evalScreenIdx >= 0
+          ? `onclick="goToScreen(${evalScreenIdx})"` 
+          : (label.evalDocUrl ? `onclick="window.open('${label.evalDocUrl}','_blank')"` : '');
+        tooltipHtml = `<div class="eval-tooltip" ${clickAction}>📊 评测效果</div>`;
+      }
+
+      // 达标标记（离线评测后，如果已经到达上线空跑及以后）
+      let badgeHtml = '';
+      if (stepIdx === 3 && label.currentStep > 3) {
+        badgeHtml = `<div style="position:absolute;top:-10px;right:-8px;background:var(--green-400);color:#000;font-size:0.6rem;padding:1px 6px;border-radius:8px;font-weight:700;">达标</div>`;
+      }
+
+      const nodeHtml = `
+        <div class="pipeline-step">
+          <div class="pipeline-node ${nodeClass}" style="position:relative">
+            ${tooltipHtml}
+            ${badgeHtml}
+            ${stepName}
           </div>
+          ${stepIdx < pipeline.length - 1 ? `<div class="pipeline-arrow ${stepIdx < label.currentStep ? 'done' : (stepIdx === label.currentStep ? 'current' : (isNotStarted ? 'idle' : 'future'))}"></div>` : ''}
         </div>
-      ` : '<span class="status-tag completed">已完成</span>'}
-    </div>
-  `).join('');
+      `;
+      return nodeHtml;
+    }).join('');
+
+    const rowClass = isNotStarted ? 'pipeline-label-row not-started' : 'pipeline-label-row';
+
+    return `
+      <div class="${rowClass}">
+        <div class="pipeline-label-name">${label.name}</div>
+        <div class="pipeline-label-status">${label.status}</div>
+        <div class="pipeline-flow">
+          ${stepsHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
 
   // 本周要点
   document.getElementById('highlightsList').innerHTML = p.weeklyHighlights.map(h => `
