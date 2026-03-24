@@ -526,7 +526,7 @@ body {
   overflow: visible;
 }
 
-/* 评测效果悬浮框 */
+/* 学习效果悬浮框 */
 .eval-tooltip {
   position: absolute;
   top: -42px;
@@ -1214,7 +1214,7 @@ let currentScreen = 0;
 let totalScreens = 3;           // 将在 renderAll 中动态更新
 let screenNames = ['项目总览']; // 将在 renderAll 中动态更新
 let autoPlayTimer = null;
-let isPlaying = true;
+let isPlaying = false;
 
 // 存储每个评测屏幕的图表实例（支持多个）
 let evalChartInstances = [];
